@@ -1,14 +1,15 @@
 /**
  * Skeet practice device
  *
+ * moves laser dot from left to right or back
+ * ultimately want to also have voice recognition ("pull")
  * uses - pan/tilt bracket     sparkfun ROB-10335
  *      - 2 sub-micro servos   sparkfun ROB-09065
  *      - laser card module    sparkfun COM-00594
  *      - laser module mount   sparkfun COM-08674
+ *      - electet microphone   sparkfun BOB-09964
  *      - Arduino (Yun)
  *
- * moves laser dot from left to right or back
- * ultimately want to also have voice recognition ("pull")
  */
 
 #include <Servo.h>
