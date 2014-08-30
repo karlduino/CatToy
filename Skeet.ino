@@ -7,7 +7,7 @@
  *      - 2 sub-micro servos   sparkfun ROB-09065
  *      - laser card module    sparkfun COM-00594
  *      - laser module mount   sparkfun COM-08674
- *      - electet microphone   sparkfun BOB-09964
+ *      - electret microphone   sparkfun BOB-09964
  *      - Arduino (Yun)
  *
  */
