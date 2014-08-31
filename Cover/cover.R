@@ -19,15 +19,24 @@ y1 <- height/2 - servo_size["height"]/2
 y2 <- height/2 + servo_size["height"]/2
 x1 <- 0.5
 x2 <- x1 + servo_size["width"]
-rect(x1, y1, x2, y2, lwd=2)
-rect(width-x1, y1, width-x2, y2, lwd=2)
+
 
 # slots for cables
 slot_height <- 0.15
 y1n <- y1 - (y1 -slot_height)/2
 y2n <- y1n - slot_height
-rect(x1, y1n, x2, y2n, lwd=2)
-rect(width-x1, y1n, width-x2, y2n, lwd=2)
+
+# servos, adjusted
+y1p <- y1 + y2n/2
+y2p <- y2 + y2n/2
+rect(x1, y1p, x2, y2p, lwd=2)
+rect(width-x1, y1p, width-x2, y2p, lwd=2)
+
+# slots for cables, adjusted
+y1np <- y1n + y2n/2
+y2np <- y2n + y2n/2
+rect(x1, y1np, x2, y2np, lwd=2)
+rect(width-x1, y1np, width-x2, y2np, lwd=2)
 
 # button
 m <- width/2
