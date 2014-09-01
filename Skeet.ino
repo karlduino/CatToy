@@ -26,10 +26,10 @@ const int MIC_PIN = A2;
 
 const int CENTER[2] = {90, 75}; /* center for each servo */
 const int ANGLES[2] = {65, 75}; /* up/down angles for high/left, low/right */
-const double MAXPOS[2] = {-1.5, 1.5}; /* max position to left and right */
+const double MAXPOS[2] = {-1.25, 1.25}; /* max position to left and right */
 
 const int DELAY_BEFORE = 1000; /* delay between "pull" and fly */
-const int TIME_TO_FLY  = 1500; /* time to fly */
+const int TIME_TO_FLY  = 3000; /* time to fly */
 const int DELAY_AFTER  = 3000; /* delay after fly */
 const int N_STEPS = 100;       /* no. steps to fly */
 
