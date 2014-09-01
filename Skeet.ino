@@ -192,10 +192,11 @@ void getMicBackground(int pin, float *middle, float *thresh, int nreadings, int 
   float value;
   double sum, sumsq;
   int ledstate = 0;
+  int n4ave = nreadings/3;
 
   *middle = 0.0;
 
-  for(int i=0; i<nreadings; i++) {
+  for(int i=0; i<n4ave; i++) {
     /* flashing LEDs */
     for(int j=0; j<2; j++) digitalWrite(LED_PINS[j], ledstate);
     ledstate = 1 - ledstate;
@@ -203,7 +204,7 @@ void getMicBackground(int pin, float *middle, float *thresh, int nreadings, int 
     value = getMicReading(pin, 0.0, nreadings_per, delay_time_per);
     (*middle) += value;
   }
-  (*middle) /= (float)nreadings;
+  (*middle) /= (float)n4ave;
 
 
   sumsq = sum = 0.0;
