@@ -139,7 +139,8 @@ void run_from_left(void) { /* run skeet from left to right */
   delay(DELAY_BEFORE);
 
   digitalWrite(LASER_PIN, HIGH);
-  move_servo(leftservos[0], MAXPOS[0], MAXPOS[1], N_STEPS, TIME_TO_FLY);
+  move_servo(leftservos[0], MAXPOS[0], MAXPOS[1], N_STEPS, TIME_TO_FLY,
+             leftservos[1], ANGLES[0]);
   digitalWrite(LASER_PIN, LOW);
 
   delay(DELAY_AFTER/2);
@@ -155,7 +156,8 @@ void run_from_right(void) { /* run skeet from right to left */
   delay(DELAY_BEFORE);
 
   digitalWrite(LASER_PIN, HIGH);
-  move_servo(leftservos[0], MAXPOS[1], MAXPOS[0], N_STEPS, TIME_TO_FLY);
+  move_servo(leftservos[0], MAXPOS[1], MAXPOS[0], N_STEPS, TIME_TO_FLY,
+             leftservos[1], ANGLES[1]);
   digitalWrite(LASER_PIN, LOW);
 
   delay(DELAY_AFTER/2);
@@ -165,13 +167,14 @@ void run_from_right(void) { /* run skeet from right to left */
 
 
 void move_servo(Servo theservo, double start_position, double end_position,
-                int n_steps, int time_ms)
+                int n_steps, int time_ms, Servo other_servo, int angle)
 {
   int delay_per = floor((double)time_ms/(double)n_steps);
   double dist_per = (end_position - start_position)/(double)n_steps;
 
   for(int i=1; i<n_steps; i++) {
       theservo.write(calc_angle(start_position + (double)i*dist_per));
+      otherservo.write(angle);
       delay(delay_per);
   }
 }
