@@ -73,7 +73,7 @@ void setup()
   pinMode(MIC_PIN, INPUT);
 
   Serial.begin(9600);
-  getMicBackground(MIC_PIN, &noise_ave, &noise_threshold, 
+  get_mic_background(MIC_PIN, &noise_ave, &noise_threshold,
                    N_READINGS_NOISE, N_READINGS_PER, DELAY_PER);
   Serial.print("noise ave = ");
   Serial.println(noise_ave);
@@ -110,14 +110,14 @@ void loop()
     digitalWrite(LED_PINS[0], LOW);
     digitalWrite(LED_PINS[1], HIGH);
   }
-  
+
   /* read_mic */
-  mic_reading = getMicReading(MIC_PIN, noise_ave, N_READINGS_PER, DELAY_PER);
+  mic_reading = get_mic_reading(MIC_PIN, noise_ave, N_READINGS_PER, DELAY_PER);
   Serial.print(mic_reading);
   Serial.print(" (vs ");
   Serial.print(noise_threshold);
   Serial.println(")");
-  
+
   if(mic_reading > noise_threshold && !just_pressed_button) {
     if(skeet_state==0) {
       Serial.println("Run from left");
@@ -143,7 +143,7 @@ void run_from_left(void) { /* run skeet from left to right */
 
   delay(DELAY_AFTER);
 }
-    
+
 
 void run_from_right(void) { /* run skeet from right to left */
   leftservos[1].write(ANGLES[1]);
@@ -157,9 +157,9 @@ void run_from_right(void) { /* run skeet from right to left */
 
   delay(DELAY_AFTER);
 }
-    
 
-void move_servo(Servo theservo, double start_position, double end_position, 
+
+void move_servo(Servo theservo, double start_position, double end_position,
                 int n_steps, int time_ms)
 {
   int delay_per = floor((double)time_ms/(double)n_steps);
@@ -181,7 +181,7 @@ int calc_angle(double position)
 }
 
 /* get a bunch of readings from mic and return the average */
-float getMicReading(int pin, float middle, int nreadings, int delay_time)
+float get_mic_reading(int pin, float middle, int nreadings, int delay_time)
 {
   float result;
   result = 0.0;
@@ -193,7 +193,8 @@ float getMicReading(int pin, float middle, int nreadings, int delay_time)
 }
 
 /* measure background noise */
-void getMicBackground(int pin, float *middle, float *thresh, int nreadings, int nreadings_per, int delay_time_per)
+void get_mic_background(int pin, float *middle, float *thresh, int nreadings,
+                        int nreadings_per, int delay_time_per)
 {
   float value;
   double sum, sumsq;
@@ -206,8 +207,8 @@ void getMicBackground(int pin, float *middle, float *thresh, int nreadings, int 
     /* flashing LEDs */
     for(int j=0; j<2; j++) digitalWrite(LED_PINS[j], ledstate);
     ledstate = 1 - ledstate;
-      
-    value = getMicReading(pin, 0.0, nreadings_per, delay_time_per);
+
+    value = get_mic_reading(pin, 0.0, nreadings_per, delay_time_per);
     (*middle) += value;
   }
   (*middle) /= (float)n4ave;
@@ -218,7 +219,7 @@ void getMicBackground(int pin, float *middle, float *thresh, int nreadings, int 
     for(int j=0; j<2; j++) digitalWrite(LED_PINS[j], ledstate);
     ledstate = 1 - ledstate;
 
-    value = getMicReading(pin, *middle, nreadings_per, delay_time_per);
+    value = get_mic_reading(pin, *middle, nreadings_per, delay_time_per);
     sum += value;
     sumsq += (double)value*(double)value;
   }
