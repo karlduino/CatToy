@@ -142,6 +142,7 @@ void run_from_left(void) { /* run skeet from left to right */
   digitalWrite(LASER_PIN, LOW);
 
   delay(DELAY_AFTER);
+  leftservos[0].write(calc_angle(MAXPOS[0]));
 }
 
 
@@ -156,6 +157,7 @@ void run_from_right(void) { /* run skeet from right to left */
   digitalWrite(LASER_PIN, LOW);
 
   delay(DELAY_AFTER);
+  leftservos[0].write(calc_angle(MAXPOS[1]));
 }
 
 
