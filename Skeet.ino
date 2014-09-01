@@ -42,10 +42,11 @@ const int MAX_SKEET_STATE = 1;
 /* sound detection */
 const int N_READINGS_PER = 100;
 const int DELAY_PER = 2;
-const int N_READINGS_NOISE = 30;
-const int N_SD_NOISE = 10;
+const int N_READINGS_NOISE = 20;
+const int N_SD_NOISE = 5.0;
 float noise_ave, noise_sd, noise_threshold;
 float mic_reading;
+bool just_pressed_button = false;
 
 double servopos[2];
 
@@ -71,12 +72,10 @@ void setup()
   pinMode(MIC_PIN, INPUT);
 
   Serial.begin(9600);
-  getMicBackground(MIC_PIN, &noise_ave, &noise_sd, N_READINGS_NOISE, N_READINGS_PER, DELAY_PER);
-  noise_threshold = noise_sd*N_SD_NOISE;
+  getMicBackground(MIC_PIN, &noise_ave, &noise_threshold, 
+                   N_READINGS_NOISE, N_READINGS_PER, DELAY_PER);
   Serial.print("noise ave = ");
   Serial.println(noise_ave);
-  Serial.print("noise sd = ");
-  Serial.println(noise_sd);
   Serial.print("noise threshold = ");
   Serial.println(noise_threshold);
 }
@@ -86,10 +85,18 @@ void loop()
   /* read button */
   button_press = digitalRead(BUTTON_PIN);
 
+  just_pressed_button = false;
+  if(prev_button_press != button_press) {
+    delay(50);
+    just_pressed_button = true;
+    if(button_press==LOW)  Serial.println("button pressed");
+    if(button_press==HIGH) Serial.println("button unpressed");
+  }
   if(prev_button_press == HIGH && button_press == LOW) {
     skeet_state += 1;
     if(skeet_state > MAX_SKEET_STATE) { skeet_state = 0; }
-    delay(30);
+    Serial.print("skeet_state = ");
+    Serial.println(skeet_state);
   }
   prev_button_press = button_press;
 
@@ -106,10 +113,11 @@ void loop()
   /* read_mic */
   mic_reading = getMicReading(MIC_PIN, noise_ave, N_READINGS_PER, DELAY_PER);
   Serial.print(mic_reading);
-  Serial.print(" ");
-  Serial.println(mic_reading / noise_sd);
+  Serial.print(" (vs ");
+  Serial.print(noise_threshold);
+  Serial.println(")");
   
-  if(mic_reading > noise_threshold) {
+  if(mic_reading > noise_threshold && !just_pressed_button) {
     if(skeet_state==0) {
       Serial.println("Run from left");
       runFromLeft();
@@ -179,21 +187,39 @@ float getMicReading(int pin, float middle, int nreadings, int delay_time)
 }
 
 /* measure background noise */
-void getMicBackground(int pin, float *middle, float *sd, int nreadings, int nreadings_per, int delay_time_per)
+void getMicBackground(int pin, float *middle, float *thresh, int nreadings, int nreadings_per, int delay_time_per)
 {
   float value;
-  double sumsq;
+  double sum, sumsq;
+  int ledstate = 0;
 
   *middle = 0.0;
-  sumsq = 0.0;
 
   for(int i=0; i<nreadings; i++) {
-    
+    /* flashing LEDs */
+    for(int j=0; j<2; j++) digitalWrite(LED_PINS[j], ledstate);
+    ledstate = 1 - ledstate;
+      
     value = getMicReading(pin, 0.0, nreadings_per, delay_time_per);
     (*middle) += value;
+  }
+  (*middle) /= (float)nreadings;
+
+
+  sumsq = sum = 0.0;
+  for(int i=0; i<nreadings; i++) {
+    for(int j=0; j<2; j++) digitalWrite(LED_PINS[j], ledstate);
+    ledstate = 1 - ledstate;
+
+    value = getMicReading(pin, *middle, nreadings_per, delay_time_per);
+    sum += value;
     sumsq += (double)value*(double)value;
   }
 
-  (*middle) /= (float)nreadings;
-  *sd = sqrt( (sumsq - (*middle)*(*middle)*(float)nreadings)/((float)(nreadings-1)) );
+  /* turn leds off */
+  for(int j=0; j<2; j++) digitalWrite(LED_PINS[j], LOW);
+
+  sum /= (float)nreadings;
+  sumsq = sqrt( (sumsq - sum*sum*(float)nreadings)/((float)(nreadings-1)) );
+  *thresh = (float)(sum + sumsq*N_SD_NOISE);
 }
