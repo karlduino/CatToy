@@ -167,7 +167,7 @@ void run_from_right(void) { /* run skeet from right to left */
 
 
 void move_servo(Servo theservo, double start_position, double end_position,
-                int n_steps, int time_ms, Servo other_servo, int angle)
+                int n_steps, int time_ms, Servo otherservo, int angle)
 {
   int delay_per = floor((double)time_ms/(double)n_steps);
   double dist_per = (end_position - start_position)/(double)n_steps;
