@@ -24,13 +24,13 @@ const int BUTTON_PIN = 8;              /* button to switch left/right */
 const int LASER_PIN = 7;
 const int MIC_PIN = A2;
 
-const int ANGLES[2] = {135, 105}; /* up/down angles for high/left, low/right */
-const int CENTER[2] = {90, 135};
-const double MAXPOS[2] = {-3.0, 3.0}; /* max position to left and right */
+const int CENTER[2] = {90, 135}; /* center for each servo */
+const int ANGLES[2] = {45, 75}; /* up/down angles for high/left, low/right */
+const double MAXPOS[2] = {-1.0, 1.0}; /* max position to left and right */
 
 const int DELAY_BEFORE = 1000; /* delay between "pull" and fly */
 const int TIME_TO_FLY  = 1500; /* time to fly */
-const int DELAY_AFTER  = 1000; /* delay after fly */
+const int DELAY_AFTER  = 3000; /* delay after fly */
 const int N_STEPS = 100;       /* no. steps to fly */
 
 /* button and skeet state */
@@ -56,6 +56,7 @@ void setup()
   for(int i=0; i<2; i++) {
     leftservos[i].attach(SERVO_PINS[i]);
     leftservos[i].write(CENTER[i]);
+    servopos[i] = CENTER[i];
   }
 
   for(int i=0; i<2; i++) {
@@ -120,48 +121,53 @@ void loop()
   if(mic_reading > noise_threshold && !just_pressed_button) {
     if(skeet_state==0) {
       Serial.println("Run from left");
-      runFromLeft();
+      run_from_left();
     }
     else if(skeet_state==1) {
       Serial.println("Run from right");
-      runFromRight();
+      run_from_right();
     }
   }
 
 }
 
-void runFromLeft(void) { /* run skeet from left to right */
-  digitalWrite(LASER_PIN, HIGH);
-  delay(1000);
-  digitalWrite(LASER_PIN, LOW);
-  delay(1000);
+void run_from_left(void) { /* run skeet from left to right */
+  leftservos[1].write(ANGLES[0]);
+  leftservos[0].write(calc_angle(MAXPOS[0]));
 
-  /* sweep to right
-  move_servo(myservo, -maxpos, maxpos, n_steps, sec_per_sweep);
-  delay(delay_between); */
+  delay(DELAY_BEFORE);
+
+  digitalWrite(LASER_PIN, HIGH);
+  move_servo(leftservos[0], MAXPOS[0], MAXPOS[1], N_STEPS, TIME_TO_FLY);
+  digitalWrite(LASER_PIN, LOW);
+
+  delay(DELAY_AFTER);
 }
     
 
-void runFromRight(void) { /* run skeet from right to left */
-  digitalWrite(LASER_PIN, HIGH);
-  delay(1000);
-  digitalWrite(LASER_PIN, LOW);
-  delay(1000);
+void run_from_right(void) { /* run skeet from right to left */
+  leftservos[1].write(ANGLES[1]);
+  leftservos[0].write(calc_angle(MAXPOS[1]));
 
-  /* sweep to left
-  move_servo(myservo, maxpos, -maxpos, n_steps, sec_per_sweep);
-  delay(delay_between); */
+  delay(DELAY_BEFORE);
+
+  digitalWrite(LASER_PIN, HIGH);
+  move_servo(leftservos[0], MAXPOS[1], MAXPOS[0], N_STEPS, TIME_TO_FLY);
+  digitalWrite(LASER_PIN, LOW);
+
+  delay(DELAY_AFTER);
 }
     
 
-void move_servo(Servo theservo, double start_position, double end_position, int n_steps, double time_sec)
+void move_servo(Servo theservo, double start_position, double end_position, 
+                int n_steps, int time_ms)
 {
-  int delay_per = floor(time_sec*1000.0/(double)n_steps);
+  int delay_per = floor((double)time_ms/(double)n_steps);
   double dist_per = (end_position - start_position)/(double)n_steps;
-  
+
   for(int i=1; i<n_steps; i++) {
-    theservo.write(calc_angle(start_position + (double)i*dist_per));
-    delay(delay_per);
+      theservo.write(calc_angle(start_position + (double)i*dist_per));
+      delay(delay_per);
   }
 }
 
