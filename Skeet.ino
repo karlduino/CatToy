@@ -58,6 +58,7 @@ void setup()
     leftservos[i].write(CENTER[i]);
     servopos[i] = CENTER[i];
   }
+  delay(DELAY_AFTER);
 
   for(int i=0; i<2; i++) {
     pinMode(LED_PINS[i], OUTPUT);
@@ -141,8 +142,9 @@ void run_from_left(void) { /* run skeet from left to right */
   move_servo(leftservos[0], MAXPOS[0], MAXPOS[1], N_STEPS, TIME_TO_FLY);
   digitalWrite(LASER_PIN, LOW);
 
-  delay(DELAY_AFTER);
+  delay(DELAY_AFTER/2);
   leftservos[0].write(calc_angle(MAXPOS[0]));
+  delay(DELAY_AFTER/2);
 }
 
 
@@ -156,8 +158,9 @@ void run_from_right(void) { /* run skeet from right to left */
   move_servo(leftservos[0], MAXPOS[1], MAXPOS[0], N_STEPS, TIME_TO_FLY);
   digitalWrite(LASER_PIN, LOW);
 
-  delay(DELAY_AFTER);
+  delay(DELAY_AFTER/2);
   leftservos[0].write(calc_angle(MAXPOS[1]));
+  delay(DELAY_AFTER/2);
 }
 
 
