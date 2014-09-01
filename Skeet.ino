@@ -24,9 +24,9 @@ const int BUTTON_PIN = 8;              /* button to switch left/right */
 const int LASER_PIN = 7;
 const int MIC_PIN = A2;
 
-const int CENTER[2] = {90, 135}; /* center for each servo */
-const int ANGLES[2] = {45, 75}; /* up/down angles for high/left, low/right */
-const double MAXPOS[2] = {-1.0, 1.0}; /* max position to left and right */
+const int CENTER[2] = {90, 75}; /* center for each servo */
+const int ANGLES[2] = {65, 75}; /* up/down angles for high/left, low/right */
+const double MAXPOS[2] = {-1.5, 1.5}; /* max position to left and right */
 
 const int DELAY_BEFORE = 1000; /* delay between "pull" and fly */
 const int TIME_TO_FLY  = 1500; /* time to fly */
@@ -54,13 +54,6 @@ double servopos[2];
 void setup()
 {
   for(int i=0; i<2; i++) {
-    leftservos[i].attach(SERVO_PINS[i]);
-    leftservos[i].write(CENTER[i]);
-    servopos[i] = CENTER[i];
-  }
-  delay(DELAY_AFTER);
-
-  for(int i=0; i<2; i++) {
     pinMode(LED_PINS[i], OUTPUT);
     digitalWrite(LED_PINS[i], LOW);
   }
@@ -80,6 +73,13 @@ void setup()
   Serial.println(noise_ave);
   Serial.print("noise threshold = ");
   Serial.println(noise_threshold);
+
+  for(int i=0; i<2; i++) {
+    leftservos[i].attach(SERVO_PINS[i]);
+    leftservos[i].write(CENTER[i]);
+    servopos[i] = CENTER[i];
+  }
+  delay(DELAY_AFTER);
 }
 
 void loop()
