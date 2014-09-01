@@ -31,7 +31,7 @@ const double MAXPOS[2] = {-1.25, 1.25}; /* max position to left and right */
 const int DELAY_BEFORE = 1000; /* delay between "pull" and fly */
 const int TIME_TO_FLY  = 3000; /* time to fly */
 const int DELAY_AFTER  = 3000; /* delay after fly */
-const int N_STEPS = 100;       /* no. steps to fly */
+const int N_STEPS = 300;       /* no. steps to fly */
 
 /* button and skeet state */
 int button_press = HIGH; /* HIGH = not pressed, because of pull-up resistor */
