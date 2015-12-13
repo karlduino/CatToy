@@ -73,7 +73,6 @@ void setup()
   digitalWrite(LED_PINS[1], state);
   
   randomSeed(analogRead(5));
-  Serial.begin(9600);
 }
 
 void loop()
@@ -82,7 +81,6 @@ void loop()
   if(button_press==LOW) {
     delay(50);
     if(button_press==LOW && button_press != prev_button_press) {
-      Serial.println("button pressed");
       state = 1 - state; 
     }
   }
@@ -90,7 +88,6 @@ void loop()
   digitalWrite(LED_PINS[0], 1-state);
   digitalWrite(LED_PINS[1], state);
 
-  Serial.println(state);
   if(state==1) {
    move_random();
    delay(500);
@@ -104,10 +101,7 @@ void move_random(void) {
   double newpos[2];
   for(int i=0; i<2; i++) {
     newpos[i] = random(MAXPOS[i] - MINPOS[i]) + MINPOS[i];
-    Serial.print((int)newpos[i]);
-    Serial.print(" ");
   }
-  Serial.println();
 
   move_servos(servos, servopos, newpos, N_STEPS, FLY_TIME);
   
@@ -119,15 +113,11 @@ void use_joystick(void) {
     double newpos[2];
     for(int i=0; i<2; i++) {
       joypos[i] = analogRead(JOY_PINS[i]);
-      Serial.print((int)joypos[i]);
-      Serial.print(" ");
       double relval = (joypos[i]-MINJOY[i])/(MAXJOY[i]-MINJOY[i]); // between 0 and 1
       if(relval < 0) relval=0;
       if(relval > 1) relval=1;
       newpos[i] = relval*180;
-      Serial.print((int)newpos[i]); Serial.print("       ");
     }
-    Serial.println();
 
   for(int i=0; i<2; i++) {
     servos[i].write(newpos[i]);
