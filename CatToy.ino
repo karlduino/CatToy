@@ -23,7 +23,9 @@ const int LASER_PIN = 7;
 
 const int CENTER[2] = {90, 75}; /* center for each servo */
 const int ANGLES[2] = {65, 75}; /* up/down angles for high/left, low/right */
-const double MAXPOS[2] = {-1.25, 1.25}; /* max position to left and right */
+
+const double MINPOS[2] = {40, 90};
+const double MAXPOS[2] = {140, 170};
 
 const int SPEED  = 3000; /* time to fly 180 degrees*/
 const int N_STEPS = 300;       /* no. steps to fly */
@@ -36,11 +38,10 @@ double servopos[2];
 
 void setup()
 {
-  for(int i=0; i<2; i++) {
+  double newpos[2];
+  
+  for(int i=0; i<2; i++)
     pinMode(LED_PINS[i], OUTPUT);
-    digitalWrite(LED_PINS[i], HIGH); delay(500);
-    digitalWrite(LED_PINS[i], LOW);
-  }
 
   pinMode(BUTTON_PIN, INPUT);
   digitalWrite(BUTTON_PIN, HIGH); /* set pull-up resistor */
@@ -53,6 +54,8 @@ void setup()
     servos[i].write(CENTER[i]);
     servopos[i] = CENTER[i];
   }
+  flash_leds(4, 250);
+  
   randomSeed(analogRead(5));
 
 }
@@ -65,9 +68,10 @@ void loop()
 }
 
 void move_random(void) {
-     double newpos[2] = { random(120)+30, random(120)+30 };
-     move_servos(servos, servopos, newpos, 200, 2000);
-     for(int i=0; i<2; i++) servopos[i] = newpos[i];
+  double newpos[2];
+  for(int i=0; i<2; i++) newpos[i] = random(MAXPOS[i] - MINPOS[i]) + MINPOS[i];
+  move_servos(servos, servopos, newpos, 200, 2000);
+  for(int i=0; i<2; i++) servopos[i] = newpos[i];
 }
 
 
@@ -89,4 +93,15 @@ void move_servos(Servo theservo[2], double start_position[2],
   }
 }
 
+void flash_leds(unsigned int num, unsigned int delay_time)
+{
+  for(int k=0; k<num; k++) {
+    if(k > 0) delay(delay_time);
+    for(int i=0; i<2; i++)
+      digitalWrite(LED_PINS[i], HIGH);
+    delay(delay_time);
+    for(int i=0; i<2; i++)
+      digitalWrite(LED_PINS[i], LOW);
+  }
+}
 
