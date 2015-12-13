@@ -124,8 +124,7 @@ void use_joystick(void) {
       double relval = (joypos[i]-MINJOY[i])/(MAXJOY[i]-MINJOY[i]); // between 0 and 1
       if(relval < 0) relval=0;
       if(relval > 1) relval=1;
-      if(i==0) newpos[i] = relval*180;
-      else newpos[i] = 180*(1-relval);
+      newpos[i] = relval*180;
       Serial.print((int)newpos[i]); Serial.print("       ");
     }
     Serial.println();
