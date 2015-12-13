@@ -9,6 +9,15 @@
  *      - Arduino (Uno)
  *      - two LEDs with 470 Ohm resistors
  *
+ * pin 5 - left LED
+ * pin 6 - right led
+ * pin 7 - laser
+ * pin 8 - button
+ * pin 9  - left/right servo
+ * pin 10 - up/down servo
+ * pin A0 - joystick left/right (X)
+ * pin A1 - joystick up/down (Y)
+ *
  */
 
 #include <Servo.h>
@@ -18,20 +27,24 @@ Servo servos[2];
 
 const int SERVO_PINS[2] = {9, 10}; /* side/side = 9, up/down=10 */
 const int LED_PINS[2] = {6, 5};    /* left=6, right=5 */
-const int BUTTON_PIN = 8;          /* button to switch left/right */
+const int BUTTON_PIN = 8;          /* button to switch between random and joystick */
 const int LASER_PIN = 7;
+const int JOY_PINS[2] = {A0, A1}; /* joystick, left/right and up/down */
 
 const int CENTER[2] = {90, 75}; /* center for each servo */
-const int ANGLES[2] = {65, 75}; /* up/down angles for high/left, low/right */
 
 const double MINPOS[2] = {40, 90};
 const double MAXPOS[2] = {140, 170};
 
-const int SPEED  = 3000; /* time to fly 180 degrees*/
-const int N_STEPS = 300;       /* no. steps to fly */
+const double MINJOY[2] = {90, 10};
+const double MAXJOY[2] = {1013, 1013};
+
+const int N_STEPS = 150;       /* no. steps to fly */
+const int FLY_TIME = 1000;         /* amount of time to fly */
 
 int button_press = HIGH; /* HIGH = not pressed, because of pull-up resistor */
 int prev_button_press = HIGH;
+int state = 0;
 
 double servopos[2];
 
@@ -45,6 +58,7 @@ void setup()
 
   pinMode(BUTTON_PIN, INPUT);
   digitalWrite(BUTTON_PIN, HIGH); /* set pull-up resistor */
+  prev_button_press = HIGH;
 
   pinMode(LASER_PIN, OUTPUT);
   digitalWrite(LASER_PIN, HIGH);
@@ -55,25 +69,72 @@ void setup()
     servopos[i] = CENTER[i];
   }
   flash_leds(4, 250);
+  digitalWrite(LED_PINS[0], 1-state);
+  digitalWrite(LED_PINS[1], state);
   
   randomSeed(analogRead(5));
-
+  Serial.begin(9600);
 }
 
 void loop()
 {
-  delay(1000);
-  move_random();
+  button_press=digitalRead(BUTTON_PIN);
+  if(button_press==LOW) {
+    delay(50);
+    if(button_press==LOW && button_press != prev_button_press) {
+      Serial.println("button pressed");
+      state = 1 - state; 
+    }
+  }
+  prev_button_press = button_press;
+  digitalWrite(LED_PINS[0], 1-state);
+  digitalWrite(LED_PINS[1], state);
 
+  Serial.println(state);
+  if(state==1) {
+   move_random();
+   delay(500);
+  }
+  else {
+    use_joystick();
+  }
 }
 
 void move_random(void) {
   double newpos[2];
-  for(int i=0; i<2; i++) newpos[i] = random(MAXPOS[i] - MINPOS[i]) + MINPOS[i];
-  move_servos(servos, servopos, newpos, 200, 2000);
+  for(int i=0; i<2; i++) {
+    newpos[i] = random(MAXPOS[i] - MINPOS[i]) + MINPOS[i];
+    Serial.print((int)newpos[i]);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  move_servos(servos, servopos, newpos, N_STEPS, FLY_TIME);
+  
   for(int i=0; i<2; i++) servopos[i] = newpos[i];
 }
 
+void use_joystick(void) {
+    double joypos[2];
+    double newpos[2];
+    for(int i=0; i<2; i++) {
+      joypos[i] = analogRead(JOY_PINS[i]);
+      Serial.print((int)joypos[i]);
+      Serial.print(" ");
+      double relval = (joypos[i]-MINJOY[i])/(MAXJOY[i]-MINJOY[i]); // between 0 and 1
+      if(relval < 0) relval=0;
+      if(relval > 1) relval=1;
+      if(i==0) newpos[i] = relval*180;
+      else newpos[i] = 180*(1-relval);
+      Serial.print((int)newpos[i]); Serial.print("       ");
+    }
+    Serial.println();
+
+  for(int i=0; i<2; i++) {
+    servos[i].write(newpos[i]);
+    servopos[i] = newpos[i];
+  }
+}
 
 
 
